@@ -1,0 +1,55 @@
+name: Create Cloudflare KV namespace
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-kv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create KV namespace if missing
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          KV_TITLE: relationship-sessions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "Missing CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID repository secret."
+            exit 1
+          fi
+
+          API_BASE="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces"
+
+          LIST_RESPONSE=$(curl --fail-with-body -sS \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "${API_BASE}?per_page=100")
+
+          EXISTING_ID=$(echo "$LIST_RESPONSE" | jq -r --arg title "$KV_TITLE" '.result[]? | select(.title == $title) | .id' | head -n 1)
+
+          if [ -n "$EXISTING_ID" ] && [ "$EXISTING_ID" != "null" ]; then
+            echo "KV namespace already exists: ${KV_TITLE}"
+            echo "Namespace ID: ${EXISTING_ID}"
+            exit 0
+          fi
+
+          CREATE_RESPONSE=$(curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
+            -H "Content-Type: application/json" \
+            --data "{\"title\":\"${KV_TITLE}\"}" \
+            "${API_BASE}")
+
+          SUCCESS=$(echo "$CREATE_RESPONSE" | jq -r '.success')
+          NAMESPACE_ID=$(echo "$CREATE_RESPONSE" | jq -r '.result.id // empty')
+
+          if [ "$SUCCESS" != "true" ] || [ -z "$NAMESPACE_ID" ]; then
+            echo "Cloudflare API did not create the namespace."
+            echo "$CREATE_RESPONSE" | jq '{success, errors, messages}'
+            exit 1
+          fi
+
+          echo "Created KV namespace: ${KV_TITLE}"
+          echo "Namespace ID: ${NAMESPACE_ID}"
