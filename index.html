@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>恋愛状況analysis - あなたの今の関係を整理する</title>
+<style>
+  :root{
+    --bg:#12141a;
+    --panel:#1b1e27;
+    --panel-border:#2a2e3a;
+    --text:#eef0f4;
+    --sub:#9aa0ae;
+    --accent:#e8577a;
+    --accent-soft:#3a2430;
+    --ok:#5fd0a3;
+    --warn:#e8b95f;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+    line-height:1.7;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  .app{
+    width:100%;
+    max-width:480px;
+    padding:24px 18px 60px;
+  }
+  header.top{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  header.top .eyebrow{
+    font-size:12px;
+    letter-spacing:0.12em;
+    color:var(--accent);
+    text-transform:uppercase;
+  }
+  header.top h1{
+    font-size:22px;
+    margin:8px 0 4px;
+    font-weight:700;
+  }
+  header.top p{
+    font-size:13px;
+    color:var(--sub);
+    margin:0;
+  }
+  .progress{
+    height:4px;
+    background:var(--panel-border);
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:20px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--accent);
+    transition:width .3s ease;
+  }
+  .card{
+    background:var(--panel);
+    border:1px solid var(--panel-border);
+    border-radius:var(--radius);
+    padding:22px 18px;
+  }
+  .step-title{
+    font-size:15px;
+    font-weight:700;
+    margin:0 0 14px;
+  }
+  .field{
+    margin-bottom:18px;
+  }
+  .field label.field-label{
+    display:block;
+    font-size:13px;
+    color:var(--sub);
+    margin-bottom:8px;
+  }
+  .field-select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid var(--panel-border);
+    background:#20232d;
+    color:var(--text);
+    font-size:14px;
+    -webkit-appearance:menulist;
+    appearance:menulist;
+  }
+  .options{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .opt{
+    flex:1 1 auto;
+    min-width:auto;
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid var(--panel-border);
+    background:#20232d;
+    color:var(--text);
+    font-size:13.5px;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+    transition:border-color .15s, background .15s;
+  }
+  .opt.selected{
+    border-color:var(--accent);
+    background:var(--accent-soft);
+    color:#ffb3c6;
+  }
+  .opt.na{
+    opacity:.7;
+    font-size:12px;
+  }
+  .nav-row{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+  }
+  button.btn{
+    flex:1;
+    padding:14px;
+    border-radius:10px;
+    border:none;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn.primary{
+    background:var(--accent);
+    color:#fff;
+  }
+  .btn.primary:disabled{
+    background:#40323a;
+    color:#8a7a80;
+    cursor:not-allowed;
+  }
+  .btn.ghost{
+    background:transparent;
+    border:1px solid var(--panel-border);
+    color:var(--sub);
+  }
+  .consent-box{
+    font-size:12px;
+    color:var(--sub);
+    background:#20232d;
+    border:1px solid var(--panel-border);
+    border-radius:10px;
+    padding:14px;
+    margin-bottom:16px;
+  }
+  .consent-box label{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    margin-top:10px;
+    cursor:pointer;
+  }
+  .consent-box input{margin-top:3px;}
+  .hidden{display:none !important;}
+  .result-tag{
+    display:inline-block;
+    font-size:11px;
+    letter-spacing:.06em;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    border-radius:20px;
+    padding:4px 10px;
+    margin-bottom:12px;
+  }
+  .result h2{
+    font-size:19px;
+    margin:0 0 10px;
+  }
+  .result-block{
+    margin-bottom:16px;
+  }
+  .result-block h3{
+    font-size:13px;
+    color:var(--sub);
+    margin:0 0 6px;
+    font-weight:700;
+  }
+  .result-block p{
+    font-size:14px;
+    margin:0;
+  }
+  .upsell{
+    margin-top:22px;
+    padding:18px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#241a24,#1b1e27);
+    border:1px solid #3a2430;
+  }
+  .upsell .price{
+    font-size:20px;
+    font-weight:800;
+    color:#ffb3c6;
+  }
+  .upsell p{
+    font-size:13px;
+    color:var(--sub);
+    margin:8px 0 14px;
+  }
+  a.cta{
+    display:block;
+    text-align:center;
+    padding:14px;
+    border-radius:10px;
+    background:var(--accent);
+    color:#fff;
+    text-decoration:none;
+    font-weight:700;
+    font-size:14.5px;
+  }
+  .caution{
+    margin-top:14px;
+    font-size:11.5px;
+    color:var(--sub);
+  }
+  .footer-note{
+    text-align:center;
+    font-size:11px;
+    color:#5c6070;
+    margin-top:26px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <h1>切ない気持ちを打ちあけたい</h1>
+    <p>誰にも言えなかったことも、少しずつ聞かせてください。</p>
+  </header>
+
+  <div class="progress"><div class="progress-fill" id="progressFill" style="width:5%"></div></div>
+
+  <div class="card">
+
+    <!-- STEP 0: consent -->
+    <div class="step" data-step="0">
+      <p class="step-title">はじめに</p>
+      <div class="consent-box">
+        本サービスでは、恋愛に関する個人的な状況を入力いただきます。回答内容はこの分析のためだけに一時的に使用し、氏名・住所・勤務先などの特定情報は入力しないでください。18歳未満の方はご利用いただけません。
+        <label><input type="checkbox" id="agreeAge"> 18歳以上であることを確認しました</label>
+        <label><input type="checkbox" id="agreePrivacy"> 上記の利用目的に同意します</label>
+      </div>
+    </div>
+
+    <!-- STEP 1: 本人 -->
+    <div class="step hidden" data-step="1">
+      <p class="step-title">あなたについて</p>
+      <div class="field">
+        <label class="field-label">年代</label>
+        <div class="options" data-key="selfAge">
+          <div class="opt" data-value="10s">10代</div>
+          <div class="opt" data-value="20s">20代</div>
+          <div class="opt" data-value="30s">30代</div>
+          <div class="opt" data-value="40s">40代</div>
+          <div class="opt" data-value="50plus">50代以上</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">性別</label>
+        <div class="options" data-key="selfGender">
+          <div class="opt" data-value="female">女性</div>
+          <div class="opt" data-value="male">男性</div>
+          <div class="opt" data-value="other">その他/回答しない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">属性</label>
+        <div class="options" data-key="selfOccupation">
+          <div class="opt" data-value="student">学生</div>
+          <div class="opt" data-value="worker">社会人</div>
+          <div class="opt" data-value="other">その他</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">婚姻状況</label>
+        <div class="options" data-key="selfMarital">
+          <div class="opt" data-value="single">未婚</div>
+          <div class="opt" data-value="married">既婚</div>
+          <div class="opt" data-value="divorced">離婚経験あり</div>
+          <div class="opt na" data-value="na">回答しない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">現在恋人がいるか</label>
+        <div class="options" data-key="selfHasPartner">
+          <div class="opt" data-value="yes">いる</div>
+          <div class="opt" data-value="no">いない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">恋愛対象</label>
+        <div class="options" data-key="selfOrientationTarget">
+          <div class="opt" data-value="opposite">異性</div>
+          <div class="opt" data-value="same">同性</div>
+          <div class="opt" data-value="both">両方</div>
+          <div class="opt na" data-value="na">回答しない</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: 相手 -->
+    <div class="step hidden" data-step="2">
+      <p class="step-title">相手について</p>
+      <div class="field">
+        <label class="field-label">年代(推定でも可)</label>
+        <div class="options" data-key="otherAge">
+          <div class="opt" data-value="10s">10代</div>
+          <div class="opt" data-value="20s">20代</div>
+          <div class="opt" data-value="30s">30代</div>
+          <div class="opt" data-value="40s">40代</div>
+          <div class="opt" data-value="50plus">50代以上</div>
+          <div class="opt na" data-value="na">わからない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">性別</label>
+        <div class="options" data-key="otherGender">
+          <div class="opt" data-value="female">女性</div>
+          <div class="opt" data-value="male">男性</div>
+          <div class="opt" data-value="other">その他/わからない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">属性</label>
+        <div class="options" data-key="otherOccupation">
+          <div class="opt" data-value="student">学生</div>
+          <div class="opt" data-value="worker">社会人</div>
+          <div class="opt na" data-value="na">わからない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">婚姻状況</label>
+        <div class="options" data-key="otherMarital">
+          <div class="opt" data-value="single">未婚</div>
+          <div class="opt" data-value="married">既婚</div>
+          <div class="opt na" data-value="na">わからない</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">恋人の有無</label>
+        <div class="options" data-key="otherHasPartner">
+          <div class="opt" data-value="yes">いる</div>
+          <div class="opt" data-value="no">いない</div>
+          <div class="opt na" data-value="na">わからない</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: 関係性 -->
+    <div class="step hidden" data-step="3">
+      <p class="step-title">二人の関係</p>
+      <div class="field" id="relationTypeField">
+        <label class="field-label">相手との関係</label>
+        <div class="options" data-key="relationType">
+          <div class="opt" data-value="classmate">同級生</div>
+          <div class="opt" data-value="friend">友人</div>
+          <div class="opt" data-value="bestfriend">親友</div>
+          <div class="opt" data-value="coworker">職場の同僚</div>
+          <div class="opt" data-value="boss">上司</div>
+          <div class="opt" data-value="subordinate">部下</div>
+          <div class="opt" data-value="client">取引先</div>
+          <div class="opt" data-value="acquaintance">知人</div>
+          <div class="opt" data-value="sns">SNS上の知人</div>
+          <div class="opt" data-value="ex">元恋人</div>
+          <div class="opt" data-value="app">マッチングアプリ</div>
+          <div class="opt" data-value="spouse">配偶者</div>
+          <div class="opt" data-value="other">その他</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">今の二人に一番近いもの</label>
+        <div class="options" data-key="stage">
+          <div class="opt" data-value="oneside">片思い</div>
+          <div class="opt" data-value="prerelation">交際前</div>
+          <div class="opt" data-value="dating">交際中</div>
+          <div class="opt" data-value="married">夫婦</div>
+          <div class="opt" data-value="reunion">復縁したい</div>
+          <div class="opt" data-value="other">その他</div>
+        </div>
+        <div id="stageWarning" style="font-size:12px;color:var(--warn);margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4: 現在の状況(関係の種類に応じてJSで内容を組み立てる) -->
+    <div class="step hidden" data-step="4"></div>
+
+    <!-- STEP 5: 自由記述 -->
+    <div class="step hidden" data-step="5">
+      <p class="step-title">最後に、もう少し詳しく(任意)</p>
+      <div class="field">
+        <label class="field-label">今の状況で、特に気になっていることや、これまでの経緯があれば教えてください(200字程度で構いません)</label>
+        <textarea id="freeTextInput" rows="6" maxlength="600"
+          style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--panel-border);background:#20232d;color:var(--text);font-size:13.5px;"
+          placeholder="例:最近連絡の頻度が減った気がして不安、告白のタイミングが分からない、など"></textarea>
+      </div>
+    </div>
+
+    <div class="step hidden" data-step="result">
+      <div class="result" id="resultArea"></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn ghost" id="backBtn">戻る</button>
+      <button class="btn primary" id="nextBtn">次へ</button>
+    </div>
+  </div>
+
+  <p class="footer-note">入力内容は分析目的のみに使用され、保存されません。</p>
+</div>
+
+<script>
+(function(){
+  const steps = ["0","1","2","3","4","5","result"];
+  let stepIndex = 0;
+  const answers = {};
+
+  function currentStepKey(){ return steps[stepIndex]; }
+
+  function showStep(){
+    if(currentStepKey()==="4"){ renderStep4(); }
+    document.querySelectorAll(".step").forEach(el=>{
+      el.classList.toggle("hidden", el.dataset.step !== currentStepKey());
+    });
+    document.getElementById("progressFill").style.width =
+      Math.min(100, ((stepIndex+1)/steps.length)*100) + "%";
+    document.getElementById("backBtn").style.visibility = stepIndex===0 ? "hidden":"visible";
+    document.getElementById("nextBtn").textContent =
+      currentStepKey()==="result" ? "閉じる" : (currentStepKey()==="5" ? "結果を見る" : "次へ");
+    validateNext();
+  }
+
+  function validateNext(){
+    const nextBtn = document.getElementById("nextBtn");
+    if(currentStepKey()==="0"){
+      const ok = document.getElementById("agreeAge").checked && document.getElementById("agreePrivacy").checked;
+      nextBtn.disabled = !ok;
+      return;
+    }
+    if(currentStepKey()==="result"){
+      nextBtn.disabled = false;
+      return;
+    }
+    const stepEl = document.querySelector('.step[data-step="'+currentStepKey()+'"]');
+    const groups = stepEl.querySelectorAll(".options");
+    let allSet = true;
+    groups.forEach(g=>{
+      if(g.offsetParent === null) return;
+      const key = g.dataset.key;
+      if(!answers[key]) allSet = false;
+    });
+    const selects = stepEl.querySelectorAll("select[data-key]");
+    selects.forEach(s=>{
+      if(!answers[s.dataset.key]) allSet = false;
+    });
+
+    const warningEl = document.getElementById("stageWarning");
+    if(currentStepKey()==="3"){
+      const conflict = answers.stage === "married" && answers.selfMarital === "single";
+      if(warningEl){
+        warningEl.textContent = conflict
+          ? "「夫婦」を選ぶ場合、婚姻状況(未婚)と矛盾します。婚姻状況を見直すか、二人の関係を選び直してください。"
+          : "";
+      }
+      if(conflict) allSet = false;
+    }
+
+    nextBtn.disabled = !allSet;
+  }
+
+  document.addEventListener("click", (e)=>{
+    const opt = e.target.closest(".opt");
+    if(!opt) return;
+    const group = opt.closest(".options");
+    if(!group) return;
+    const key = group.dataset.key;
+    group.querySelectorAll(".opt").forEach(o=>o.classList.remove("selected"));
+    opt.classList.add("selected");
+    answers[key] = opt.dataset.value;
+    if(key === "stage"){ updateRelationTypeVisibility(); }
+    validateNext();
+  });
+
+  function updateRelationTypeVisibility(){
+    const field = document.getElementById("relationTypeField");
+    if(!field) return;
+    if(answers.stage === "married"){
+      answers.relationType = "spouse";
+      field.classList.add("hidden");
+    } else {
+      if(answers.relationType === "spouse"){
+        delete answers.relationType;
+      }
+      field.classList.remove("hidden");
+      field.querySelectorAll(".opt").forEach(o=>o.classList.remove("selected"));
+    }
+  }
+
+  document.addEventListener("change", (e)=>{
+    const sel = e.target.closest("select[data-key]");
+    if(!sel || !sel.value) return;
+    answers[sel.dataset.key] = sel.options[sel.selectedIndex].textContent;
+    validateNext();
+  });
+
+  document.getElementById("agreeAge").addEventListener("change", validateNext);
+  document.getElementById("agreePrivacy").addEventListener("change", validateNext);
+
+  document.getElementById("backBtn").addEventListener("click", ()=>{
+    if(stepIndex>0){ stepIndex--; showStep(); }
+  });
+
+  document.getElementById("nextBtn").addEventListener("click", async ()=>{
+    if(currentStepKey()==="result"){
+      return;
+    }
+    if(currentStepKey()==="5"){
+      answers.freeText = (document.getElementById("freeTextInput").value || "").slice(0,600);
+      stepIndex++; showStep();
+      await renderResult();
+      return;
+    }
+    if(stepIndex < steps.length-1){ stepIndex++; showStep(); }
+  });
+
+  let lastRendered4Stage = null;
+
+  function stage4Config(stage){
+    const periodOptionsDefault = ["1ヶ月未満","1〜6ヶ月","半年〜3年","3年以上"];
+    const datingPeriodOptions = ["3か月以内","半年以内","1年以内","2年以内","3年以内","5年以内","10年以内","10年以上"];
+    const marriagePeriodOptions = ["1年以内","3年以内","5年以内","10年以内","20年以内","20年以上"];
+
+    if(stage === "dating"){
+      return { periodLabel:"付き合ってからどのくらいですか?", periodOptions:datingPeriodOptions, showAloneCount:true };
+    }
+    if(stage === "married"){
+      return { periodLabel:"結婚してからどのくらいですか?", periodOptions:marriagePeriodOptions, showAloneCount:false };
+    }
+    if(stage === "reunion"){
+      return { periodLabel:"以前、どのくらい付き合っていましたか?", periodOptions:datingPeriodOptions, showAloneCount:false };
+    }
+    return { periodLabel:"知り合ってからの期間", periodOptions:periodOptionsDefault, showAloneCount:true };
+  }
+
+  function renderStep4(){
+    if(lastRendered4Stage === answers.stage){ return; }
+    lastRendered4Stage = answers.stage;
+
+    const cfg = stage4Config(answers.stage);
+    const stepEl = document.querySelector('.step[data-step="4"]');
+
+    delete answers.knownPeriod;
+    if(!cfg.showAloneCount){ delete answers.aloneCount; }
+
+    let html = `<p class="step-title">今の状況</p>
+      <div class="field">
+        <label class="field-label">${cfg.periodLabel}</label>
+        <select class="field-select" data-key="knownPeriod">
+          <option value="" disabled selected>選択してください</option>
+          ${cfg.periodOptions.map(label => `<option value="${label}">${label}</option>`).join("")}
+        </select>
+      </div>`;
+
+    if(cfg.showAloneCount){
+      html += `<div class="field">
+        <label class="field-label">二人だけで会った回数</label>
+        <div class="options" data-key="aloneCount">
+          <div class="opt" data-value="0">0回</div>
+          <div class="opt" data-value="1to3">1〜3回</div>
+          <div class="opt" data-value="4plus">4回以上</div>
+        </div>
+      </div>`;
+    }
+
+    html += `<div class="field">
+        <label class="field-label">連絡の頻度(あなたから)</label>
+        <div class="options" data-key="contactFreqSelf">
+          <div class="opt" data-value="daily">ほぼ毎日</div>
+          <div class="opt" data-value="weekly">週に数回</div>
+          <div class="opt" data-value="rare">たまに</div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">連絡の頻度(相手から)</label>
+        <div class="options" data-key="contactFreqOther">
+          <div class="opt" data-value="daily">ほぼ毎日</div>
+          <div class="opt" data-value="weekly">週に数回</div>
+          <div class="opt" data-value="rare">たまに</div>
+          <div class="opt" data-value="none">ほぼない</div>
+        </div>
+      </div>`;
+
+    stepEl.innerHTML = html;
+
+    stepEl.querySelectorAll(".options[data-key]").forEach(g=>{
+      const key = g.dataset.key;
+      if(answers[key]){
+        const match = g.querySelector('.opt[data-value="'+answers[key]+'"]');
+        if(match){ match.classList.add("selected"); }
+      }
+    });
+  }
+
+  showStep();
+
+  function classify(a){
+    const flags = {
+      sameSex: false,
+      isCouple: false,
+      marriedInvolved: false,
+      route: "general"
+    };
+
+    if(a.selfGender && a.otherGender && a.selfGender !== "other" && a.otherGender !== "other"){
+      if(a.selfGender === a.otherGender){
+        flags.sameSex = true;
+      }
+    }
+
+    flags.isCouple = (a.stage === "married");
+    flags.marriedInvolved = !flags.isCouple &&
+      (a.selfMarital === "married" || a.otherMarital === "married");
+
+    if(flags.isCouple){
+      flags.route = "couple";
+    } else if(flags.marriedInvolved){
+      flags.route = "marriedInvolved";
+    } else if(flags.sameSex){
+      flags.route = "samesex";
+    } else {
+      flags.route = "general";
+    }
+
+    return flags;
+  }
+
+  function stageLabel(v){
+    return {oneside:"片思い", reunion:"復縁希望", prerelation:"交際前", dating:"交際中", other:"その他"}[v] || v;
+  }
+  function relationLabel(v){
+    return {classmate:"同級生",friend:"友人",bestfriend:"親友",coworker:"職場の同僚",boss:"上司",subordinate:"部下",client:"取引先",acquaintance:"知人",sns:"SNS上の知人",ex:"元恋人",app:"マッチングアプリ",other:"その他"}[v] || v;
+  }
+
+  function currentStageAssessment(a){
+    let score = 0;
+    if(a.contactFreqOther === "daily") score += 2;
+    else if(a.contactFreqOther === "weekly") score += 1;
+    else if(a.contactFreqOther === "none") score -= 2;
+
+    if(a.aloneCount === "4plus") score += 2;
+    else if(a.aloneCount === "1to3") score += 1;
+
+    if(a.stage === "dating") score += 5;
+
+    if(score >= 5) return {level:"進展段階", desc:"すでに一定の信頼関係がある段階です。"};
+    if(score >= 2) return {level:"やり取り段階", desc:"連絡や接点はあるものの、関係を進める判断材料はまだ揃っていない段階です。"};
+    return {level:"様子見段階", desc:"接点がまだ少なく、相手の気持ちを判断する材料が不足している段階です。"};
+  }
+
+  function buildOutboundFormData(base){
+    const payload = Object.assign({}, base);
+    if(payload.stage === "married"){
+      payload.stage = "marriedCouple";
+    }
+    return payload;
+  }
+
+  const API_BASE = "https://YOUR-WORKER-SUBDOMAIN.workers.dev";
+  const ENTRY_ANALYSIS_FLAG = "entryAnalysisDone";
+
+  async function renderResult(){
+    const area = document.getElementById("resultArea");
+    const flags = classify(answers);
+    let tag = flags.route === "couple" ? "夫婦の関係ルート"
+             : flags.route === "marriedInvolved" ? "関係整理ルート"
+             : flags.route === "samesex" ? "個別ルート(同性間の関係)"
+             : "一般恋愛ルート・" + stageLabel(answers.stage);
+
+    const cached = sessionStorage.getItem(ENTRY_ANALYSIS_FLAG);
+    if(cached){
+      area.innerHTML = renderResultShell(tag, cached);
+      setupUnlockHandlers();
+      return;
+    }
+
+    area.innerHTML = `
+      <span class="result-tag">${tag}</span>
+      <h2>あなたの状況を整理しています…</h2>
+      <p style="color:var(--sub);font-size:13px;">数秒お待ちください</p>
+    `;
+
+    try{
+      const res = await fetch(API_BASE + "/api/analyze-entry", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ formData: buildOutboundFormData(answers) })
+      });
+      const data = await res.json();
+      if(!res.ok){
+        area.innerHTML = `
+          <span class="result-tag">${tag}</span>
+          <h2>結果を取得できませんでした</h2>
+          <p style="font-size:13px;color:var(--sub);">通信状況をご確認のうえ、少し時間をおいて再度お試しください。</p>
+        `;
+        return;
+      }
+      sessionStorage.setItem(ENTRY_ANALYSIS_FLAG, data.result);
+      area.innerHTML = renderResultShell(tag, data.result);
+      setupUnlockHandlers();
+    }catch(e){
+      area.innerHTML = `
+        <span class="result-tag">${tag}</span>
+        <h2>結果を取得できませんでした</h2>
+        <p style="font-size:13px;color:var(--sub);">通信エラーが発生しました。少し時間をおいて再度お試しください。</p>
+      `;
+    }
+  }
+
+  function renderResultShell(tag, resultText){
+    return `
+      <span class="result-tag">${tag}</span>
+      <h2>あなたの状況を整理しました</h2>
+      <div class="result-block"><p style="white-space:pre-wrap;">${resultText.replace(/</g,"&lt;")}</p></div>
+
+      <div class="result-block" style="margin-top:22px;">
+        <h3 style="color:var(--ok);">現在地の整理、完了です</h3>
+        <p>今のあなたと相手の関係が、今どのあたりにあるかが見えてきたと思います。</p>
+      </div>
+
+      <div class="upsell">
+        <p style="font-size:14px;color:var(--text);font-weight:700;margin-top:0;">では、あなたの場合、ここからどう動くか</p>
+        <p>現在地が分かった次は、具体的にどう動くかという新しい課題があります。あなたの状況に合わせて、行動の言い方や、相手の反応別の次の一手まで整理するサービスをご用意しています。</p>
+        <a class="cta" href="NOTE_1980_URL_HERE" target="_blank" rel="noopener">具体的な行動を整理する</a>
+        <p style="margin-top:18px;">状況が変わるたびに、繰り返し相談しながら進めたい方には、継続して相談できるサービスもあります。</p>
+        <a class="cta" style="margin-top:10px;background:#2a2e3a;" href="NOTE_9800_URL_HERE" target="_blank" rel="noopener">継続して相談する</a>
+        <p class="caution">お申し込み後、担当から受付番号(例:A7K3)をお送りします。下の欄に入力するとご利用いただけます。</p>
+      </div>
+
+      <div class="unlock" id="unlockSection">
+        <h3 style="font-size:13px;color:var(--sub);margin:22px 0 8px;">受付番号をお持ちの方</h3>
+        <div class="field">
+          <input type="text" id="codeInput" maxlength="4" placeholder="例: A7K3"
+            style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--panel-border);background:#20232d;color:var(--text);font-size:15px;letter-spacing:0.1em;text-align:center;text-transform:uppercase;">
+        </div>
+        <button class="btn primary" id="redeemBtn" style="width:100%;">番号を確認する</button>
+        <div id="unlockMsg" style="font-size:12px;color:var(--warn);margin-top:8px;"></div>
+
+        <div id="detailForm" class="hidden" style="margin-top:16px;">
+          <div class="field">
+            <label class="field-label">これまでの経緯・今一番知りたいこと(自由記述)</label>
+            <textarea id="detailFreeTextInput" rows="6" maxlength="1500"
+              style="width:100%;padding:12px;border-radius:10px;border:1px solid var(--panel-border);background:#20232d;color:var(--text);font-size:13.5px;"
+              placeholder="これまで二人の間で何があったか、今一番知りたいことなどを書いてください"></textarea>
+          </div>
+          <button class="btn primary" id="analyzeBtn" style="width:100%;">個別分析を開始</button>
+        </div>
+
+        <div id="analysisResult" class="result-block hidden" style="margin-top:18px;"></div>
+      </div>
+    `;
+  }
+
+  let redeemedToken = null;
+
+  function setupUnlockHandlers(){
+    const redeemBtn = document.getElementById("redeemBtn");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    if(!redeemBtn) return;
+
+    redeemBtn.addEventListener("click", async ()=>{
+      const code = document.getElementById("codeInput").value.trim().toUpperCase();
+      const msg = document.getElementById("unlockMsg");
+      if(!code){ msg.textContent = "受付番号を入力してください"; return; }
+      msg.textContent = "確認中...";
+      try{
+        const res = await fetch(API_BASE + "/api/redeem", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ code })
+        });
+        const data = await res.json();
+        if(!res.ok){
+          msg.textContent = data.error === "code_already_used" ? "この番号はすでに使用されています" :
+                             data.error === "invalid_code" ? "番号が見つかりません。お申し込み時の番号をご確認ください" :
+                             "確認できませんでした";
+          return;
+        }
+        redeemedToken = data.token;
+        msg.textContent = "確認できました。状況を入力してください。";
+        document.getElementById("detailForm").classList.remove("hidden");
+      }catch(e){
+        msg.textContent = "通信エラーが発生しました";
+      }
+    });
+
+    analyzeBtn.addEventListener("click", async ()=>{
+      if(!redeemedToken) return;
+      const freeText = document.getElementById("detailFreeTextInput").value;
+      analyzeBtn.disabled = true;
+      analyzeBtn.textContent = "分析中...";
+      try{
+        const res = await fetch(API_BASE + "/api/analyze", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ token: redeemedToken, formData: buildOutboundFormData(Object.assign({}, answers, { freeText })) })
+        });
+        const data = await res.json();
+        const resultBox = document.getElementById("analysisResult");
+        resultBox.classList.remove("hidden");
+        if(!res.ok){
+          resultBox.innerHTML = "<p>分析を取得できませんでした。時間をおいて再度お試しいただくか、運営までご連絡ください。</p>";
+        }else{
+          resultBox.innerHTML = "<h3>個別分析結果</h3><p style='white-space:pre-wrap;'>" +
+            data.result.replace(/</g,"&lt;") + "</p>";
+        }
+      }catch(e){
+        document.getElementById("analysisResult").classList.remove("hidden");
+        document.getElementById("analysisResult").innerHTML = "<p>通信エラーが発生しました。</p>";
+      }finally{
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = "個別分析を開始";
+      }
+    });
+  }
+
+})();
+</script>
+</body>
+</html>
