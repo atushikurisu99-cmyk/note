@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>受付番号 発行(運営用)</title>
+<style>
+  body{font-family:-apple-system,sans-serif;background:#12141a;color:#eef0f4;padding:24px;max-width:420px;margin:0 auto;}
+  h1{font-size:18px;}
+  label{display:block;font-size:13px;color:#9aa0ae;margin:14px 0 6px;}
+  input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #2a2e3a;background:#1b1e27;color:#eef0f4;font-size:14px;box-sizing:border-box;}
+  button{width:100%;margin-top:18px;padding:12px;border-radius:8px;border:none;background:#e8577a;color:#fff;font-weight:700;font-size:14px;}
+  .result{margin-top:20px;padding:16px;border-radius:10px;background:#1b1e27;border:1px solid #2a2e3a;font-size:14px;}
+  .code{font-size:26px;letter-spacing:0.15em;font-weight:800;color:#ffb3c6;text-align:center;margin:8px 0;}
+</style>
+</head>
+<body>
+  <h1>受付番号 発行(運営専用ページ)</h1>
+  <p style="font-size:12px;color:#9aa0ae;">note側で入金を手動確認した後にのみ、ここで番号を発行してください。発行前にAPIは一切呼ばれません。</p>
+
+  <label>合言葉(ADMIN_SECRET)</label>
+  <input type="password" id="secret" placeholder="運営だけが知っている合言葉">
+
+  <label>商品</label>
+  <select id="tier">
+    <option value="1980">1,980円｜個別分析</option>
+    <option value="9800">9,800円｜プレミアム相談</option>
+  </select>
+
+  <label>メモ(任意・購入者の識別用。個人情報は入れない)</label>
+  <input type="text" id="note" placeholder="例: note注文番号やニックネームの一部">
+
+  <button id="issueBtn">受付番号を発行する</button>
+
+  <div class="result" id="result" style="display:none;"></div>
+
+<script>
+const API_BASE = "https://YOUR-WORKER-SUBDOMAIN.workers.dev";
+document.getElementById("issueBtn").addEventListener("click", async ()=>{
+  const secret = document.getElementById("secret").value;
+  const tier = document.getElementById("tier").value;
+  const note = document.getElementById("note").value;
+  const resultBox = document.getElementById("result");
+  resultBox.style.display = "block";
+  resultBox.textContent = "発行中...";
+  try{
+    const res = await fetch(API_BASE + "/api/admin/issue-code", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ secret, tier, note })
+    });
+    const data = await res.json();
+    if(!res.ok){
+      resultBox.textContent = "発行に失敗しました: " + (data.error || "unknown_error");
+      return;
+    }
+    resultBox.innerHTML = "この番号を購入者に伝えてください:<div class='code'>" + data.code + "</div>商品:¥" + data.tier;
+  }catch(e){
+    resultBox.textContent = "通信エラーが発生しました";
+  }
+});
+</script>
+</body>
+</html>
